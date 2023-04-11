@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import {
-    LeftContainer,
-    NavbarContainer,
-    NavbarExtendContainer,
-    NavbarLink,
-    NavbarLinkExtend,
-    NavInnerContainer,
-    OpenLinkButton,
-    RightContainer
+	LeftContainer,
+	NavbarContainer,
+	NavbarExtendContainer,
+	NavbarLink,
+	NavbarLinkExtend,
+	NavInnerContainer,
+	OpenLinkButton,
+	RightContainer
 } from './styles'
 
 import { Carrinho } from '../../pages/Carrinho'
@@ -16,91 +16,91 @@ import { Carrinho } from '../../pages/Carrinho'
 // https://github.com/profchines
 
 interface interfData {
-    id: number,
-    categoria: string
-    url : string
+	id: number,
+	categoria: string
+	url : string
 }
 
 export const Menu = () => {
-    const [extendNavbar, setExtendNavBar] = useState(false);
-    const [dataMenu, setMenu] = useState<Array<interfData>>([]);
+	const [extendNavbar, setExtendNavBar] = useState(false);
+	const [dataMenu, setMenu] = useState<Array<interfData>>([]);
 
-    useEffect(() => {
+	useEffect(() => {
 
-        axios.get('http://localhost:3001/categorias')
-            .then((response) => {
-                setMenu(response.data)
-            })
-            .catch((erro) => {
-                console.log(erro)
-            })
+		axios.get('http://localhost:3001/categorias')
+			.then((response) => {
+				setMenu(response.data)
+			})
+			.catch((erro) => {
+				console.log(erro)
+			})
 
-    }, [])
+	}, [])
 
-    return (
-        <NavbarContainer
-            extendNavbar={extendNavbar}
-        >
-            <NavInnerContainer>
-                <LeftContainer>
+	return (
+		<NavbarContainer
+			extendNavbar={extendNavbar}
+		>
+			<NavInnerContainer>
+				<LeftContainer>
 
-                    <OpenLinkButton
-                        onClick={() => {
+					<OpenLinkButton
+						onClick={() => {
 
-                            setExtendNavBar((atual) => !atual)
+							setExtendNavBar((atual) => !atual)
 
-                        }}
-                    >
-                        {extendNavbar ? <>&#10005;</> : <>&#8801;</>}
-                    </OpenLinkButton>
+						}}
+					>
+						{extendNavbar ? <>&#10005;</> : <>&#8801;</>}
+					</OpenLinkButton>
 
-                    <NavbarLinkExtend
-                        to='/'
-                    >
-                        Shoowpy
-                    </NavbarLinkExtend>
+					<NavbarLinkExtend
+						to='/'
+					>
+						Shoowpy
+					</NavbarLinkExtend>
 
-                    <NavbarLink to='/'>Home</NavbarLink>
-                    {
-                        dataMenu.map((menu) => (
-                            <NavbarLink
-                                key={menu.id}
-                                to={menu.url}
-                            >
-                                {
-                                    menu.categoria
-                                }
-                            </NavbarLink>
-                        ))
-                    }
+					<NavbarLink to='/'>Home</NavbarLink>
+					{
+						dataMenu.map((menu) => (
+							<NavbarLink
+								key={menu.id}
+								to={menu.url}
+							>
+								{
+									menu.categoria
+								}
+							</NavbarLink>
+						))
+					}
 
-                </LeftContainer>
-                <RightContainer>
-                    <NavbarLinkExtend to='Carrinho' >
-                        Carrinho
-                    </NavbarLinkExtend>
-                </RightContainer>
-            </NavInnerContainer>
+				</LeftContainer>
+				<RightContainer>
+					<NavbarLinkExtend to='/carrinho' >
+						Carrinho
+					</NavbarLinkExtend>
+				</RightContainer>
+			</NavInnerContainer>
 
-            {
-                extendNavbar && (
-                    <NavbarExtendContainer>
-                        {
-                            dataMenu.map((menu) => (
-                                <NavbarLinkExtend
-                                    key={menu.id}
-                                    to={menu.url}
-                                >
-                                    {
-                                        menu.categoria
-                                    }
-                                </NavbarLinkExtend>
-                            ))
-                        }
-                    </NavbarExtendContainer>
-                )
-            }
+			{
+				extendNavbar && (
+					<NavbarExtendContainer>
+						{
+							dataMenu.map((menu) => (
+								<NavbarLinkExtend
+									key={menu.id}
+									to={menu.url}
+								>
+									{
+										menu.categoria
+									}
+								</NavbarLinkExtend>
+							))
+						}
+					</NavbarExtendContainer>
+				)
+			}
 
-        </NavbarContainer>
-    )
+		</NavbarContainer>
+	)
 }
