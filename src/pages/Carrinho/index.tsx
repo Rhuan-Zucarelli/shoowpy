@@ -1,42 +1,43 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import { Menu } from '../../components/Menu'
-import { FaTrash } from 'react-icons/fa'
-import { Button, TBTr, THTh, THtr, Table, Td, TextButton } from './styles'
+import React, { useCallback, useEffect, useState } from "react";
+import { Menu } from "../../components/Menu";
+import { FaTrash } from "react-icons/fa";
+import { Button, TBTr, THTh, THtr, Table, Td, TextButton } from "./styles";
+import numeral from 'numeral';
+
 
 interface interfProdutos {
-  id_categoria: number
-  total: number
+  id_categoria: number;
+  total: number;
 
-  id: string
-  imagemg: string
-  imagemp: string
-  nome: string
-  promo: string
-  promoNumber: string
-  quantidade: string
-  valor: string
+  id: string;
+  imagemg: string;
+  imagemp: string;
+  nome: string;
+  promo: string;
+  promoNumber: string;
+  quantidade: string;
+  valor: string;
 }
 
 export const Carrinho = () => {
-
-  const [dataCarrinho, setDataCarrinho] = useState<Array<interfProdutos>>([])
-  const [valorTotal, setValorTotal] = useState<number>(0)
+  const [dataCarrinho, setDataCarrinho] = useState<Array<interfProdutos>>([]);
+  const [valorTotal, setValorTotal] = useState<number>(0);
 
   const atualizaValorTotal = useCallback(
     (carrinho: Array<interfProdutos>) => {
-      let total = 0
+      let total = 0;
 
       carrinho.forEach((produto) => {
-        total = produto.total + total
-      })
-      setValorTotal(total)
-
-    }, [])
+        total = (produto.total*parseInt(produto.quantidade)) + total;
+      });
+      setValorTotal(total);
+    },
+    []
+  );
   // function atualizaValorTotal(
   //     carrinho: Array<interfProdutos>
   // ) {
   //     let total = 0
-
 
   //     carrinho.forEach((produto) => {
   //         total = produto.total + total
@@ -48,51 +49,42 @@ export const Carrinho = () => {
   // }
 
   useEffect(() => {
-    let lsCarrinho = localStorage.getItem(
-      '@shoowpy:carrinho'
-    )
-    let carrinho: any = null
+    let lsCarrinho = localStorage.getItem("@shoowpy:carrinho");
+    let carrinho: any = null;
 
-    if (typeof lsCarrinho === 'string') {
-      carrinho = JSON.parse(lsCarrinho)
+    if (typeof lsCarrinho === "string") {
+      carrinho = JSON.parse(lsCarrinho);
     }
 
     if (carrinho) {
-      setDataCarrinho(carrinho)
-      atualizaValorTotal(carrinho)
+      setDataCarrinho(carrinho);
+      atualizaValorTotal(carrinho);
     }
-
-  }, [])
+  }, []);
 
   function removerProdutoCarrinho(id: string) {
-    let carrinho = dataCarrinho.filter((produto) => (
-      produto.id !== id
-    ))
+    let carrinho = dataCarrinho.filter((produto) => produto.id !== id);
 
-    localStorage.setItem(
-      '@shoowpy:carrinho',
-      JSON.stringify(carrinho)
-    )
+    localStorage.setItem("@shoowpy:carrinho", JSON.stringify(carrinho));
 
-    setDataCarrinho(carrinho)
-    atualizaValorTotal(carrinho)
+    setDataCarrinho(carrinho);
+    atualizaValorTotal(carrinho);
   }
   const limparCarrinho = () => {
-    localStorage.removeItem(
-      '@shoowpy:carrinho'
-    )
-    setDataCarrinho([])
-  }
+    localStorage.removeItem("@shoowpy:carrinho");
+    setDataCarrinho([]);
+    setValorTotal(0);
+  };
 
   return (
     <>
       <Menu />
       <div
         style={{
-          paddingLeft: '6%',
-          paddingRight: '6%',
+          paddingLeft: "6%",
+          paddingRight: "6%",
           marginTop: 20,
-          marginBottom: 40
+          marginBottom: 40,
         }}
       >
         <h2>Carrinho de compras</h2>
@@ -102,9 +94,11 @@ export const Carrinho = () => {
             <THtr>
               <THTh
                 style={{
-                  minWidth: 300
+                  minWidth: 300,
                 }}
-              >Nome do Produto</THTh>
+              >
+                Nome do Produto
+              </THTh>
               <THTh>Quantidade</THTh>
               <THTh>Vlr Unit.</THTh>
               <THTh>Vlr Total.</THTh>
@@ -112,67 +106,58 @@ export const Carrinho = () => {
             </THtr>
           </thead>
           <tbody>
-
-            {
-              dataCarrinho.map((produto) => {
-                return (
-                  <TBTr key={produto.id}>
-                    <Td width={300}>{produto.nome}</Td>
-                    <Td>{produto.quantidade}</Td>
-                    <Td>{produto.promo}</Td>
-                    <Td>{produto.total}</Td>
-                    <Td>
-                      <Button
-                        type='button'
-                        onClick={() => {
-                          removerProdutoCarrinho(produto.id)
-                        }}
-                      >
-                        <TextButton>
-                          <FaTrash />
-                        </TextButton>
-                      </Button>
-                    </Td>
-                  </TBTr>
-                )
-              })
-            }
-
+            {dataCarrinho.map((produto) => {
+              return (
+                <TBTr key={produto.id}>
+                  <Td width={300}>{produto.nome}</Td>
+                  <Td>{produto.quantidade}</Td>
+                  <Td><div>{numeral(produto.promo).format('$0,0.00')}</div></Td>
+                  <Td><div>{numeral(produto.total * parseInt(produto.quantidade)).format('$0,0.00')}</div></Td>
+                  <Td>
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        removerProdutoCarrinho(
+                          produto.id
+                        );
+                      }}
+                    >
+                      <TextButton>
+                        <FaTrash />
+                      </TextButton>
+                    </Button>
+                  </Td>
+                </TBTr>
+              );
+            })}
           </tbody>
           <tfoot>
             <TBTr>
               <Td width={300}>Valor Total</Td>
               <Td></Td>
               <Td></Td>
-              <Td>{valorTotal}</Td>
+              <Td>{numeral(valorTotal).format('$0,0.00')}</Td>
               <Td></Td>
             </TBTr>
           </tfoot>
         </Table>
 
-        {
-          dataCarrinho.length > 0 &&
+        {dataCarrinho.length > 0 && (
           <div
             style={{
-              display: 'flex',
-              justifyContent: 'space-between'
+              display: "flex",
+              justifyContent: "space-between",
             }}
           >
-            <Button
-              type='button'
-              onClick={limparCarrinho}
-            >
+            <Button type="button" onClick={limparCarrinho}>
               <TextButton>Limpar carrinho</TextButton>
             </Button>
-            <Button
-              type='button'
-              bgColor='green'
-            >
+            <Button type="button" bgColor="green">
               <TextButton>Finalizar pedido</TextButton>
             </Button>
           </div>
-        }
+        )}
       </div>
     </>
-  )
-}
+  );
+};

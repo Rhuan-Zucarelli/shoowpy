@@ -5,172 +5,181 @@ import { Menu } from "../../components/Menu"
 import { Button, Col4, Col6, Input, Row, TextButton } from "./styles"
 
 interface interfData {
-    "id": string,
-    "id_categoria": number,
-    "nome": string,
-    "valor": string,
-    "promo": string,
-    "promoNumber": string,
-    "imagemg": string,
-    "imagemp": string
+  "id": string,
+  "id_categoria": number,
+  "nome": string,
+  "valor": string,
+  "promo": string,
+  "promoNumber": string,
+  "imagemg": string,
+  "imagemp": string
 }
 
 export const Produto = () => {
-    const { id } = useParams()
-    const navigate = useNavigate()
+  const { id } = useParams()
+  const navigate = useNavigate()
 
-    const caminho = 'https://raw.githubusercontent.com/profchines/imagensProjetoU2/main/'
+  const caminho = 'https://raw.githubusercontent.com/profchines/imagensProjetoU2/main/'
 
-    const [dataProduto, setProduto] = useState<interfData>();
+  const [dataProduto, setProduto] = useState<interfData>();
 
-    useEffect(() => {
-        axios.get('http://localhost:3001/produtos?id=' + id)
-            .then((response) => {
-                setProduto(response.data[0])
-            })
-            .catch((erro) => {
-                console.log(erro)
-            })
-    }, [id])
+  useEffect(() => {
+    axios.get('http://localhost:3001/produtos?id=' + id)
+      .then((response) => {
+        setProduto(response.data[0])
+      })
+      .catch((erro) => {
+        console.log(erro)
+      })
+  }, [id])
 
-    function onSubmit(e: any) {
+  function onSubmit(e: any) {
 
-        e.preventDefault();
+    e.preventDefault();
 
-        if (dataProduto) {
-            let qtd: number = e.target.quantidade.value
+    if (dataProduto) {
+      let qtd: number = e.target.quantidade.value
 
-            if (qtd > 0) {
-                let obj = {
-                    ...dataProduto,
-                    quantidade: qtd,
-                    total: Number(dataProduto.promo) * qtd
-                }
-
-                let lsCarrinho = localStorage.getItem(
-                    '@shoowpy:carrinho'
-                )
-                let carrinho: any = null
-
-
-                if (typeof lsCarrinho === 'string') {
-                    carrinho = JSON.parse(lsCarrinho)
-                }
-
-                if (carrinho) {
-
-                    let igual = false
-
-                    carrinho.forEach((prodt: any) => {
-                        if (prodt.id === obj.id ) {
-                            igual = true
-                        }
-                    })
-
-                    if (igual) {
-
-                        //soma caso for mesmo produto
-
-                    } else {
-                        //diferente
-
-                        carrinho.push(obj)
-
-                        localStorage.setItem(
-                            '@shoowpy:carrinho',
-                            JSON.stringify(carrinho)
-                        )
-
-                    }
-
-
-                } else {
-                    localStorage.setItem(
-                        '@shoowpy:carrinho',
-                        JSON.stringify([obj])
-                    )
-                }
-
-                navigate('/carrinho')
-
-
-            }
+      if (qtd > 0) {
+        let obj = {
+          ...dataProduto,
+          quantidade: qtd,
+          total: Number(dataProduto.promo) * qtd
         }
 
+        let lsCarrinho = localStorage.getItem(
+          '@shoowpy:carrinho'
+        )
+        let carrinho: any = null
+
+
+        if (typeof lsCarrinho === 'string') {
+          carrinho = JSON.parse(lsCarrinho)
+        }
+
+        if (carrinho) {
+
+          let igual = false
+          let indice: number|null = null
+
+          carrinho.forEach((prodt: any, index: number) => {
+            if (prodt.id === obj.id) {
+              igual = true
+              indice = index
+            }
+          })
+
+          if (igual&&indice!==null) {
+            
+            
+            carrinho[indice].quantidade=parseInt(`${qtd}`) + parseInt(carrinho[indice].quantidade||0)
+
+            localStorage.setItem(
+              '@shoowpy:carrinho',
+              JSON.stringify(carrinho)
+            )
+            //soma caso for mesmo produto
+
+          } else {
+            //diferente
+
+            carrinho.push(obj)
+
+            localStorage.setItem(
+              '@shoowpy:carrinho',
+              JSON.stringify(carrinho)
+            )
+
+          }
+
+
+        } else {
+          localStorage.setItem(
+            '@shoowpy:carrinho',
+            JSON.stringify([obj])
+          )
+        }
+
+        navigate('/carrinho')
+
+
+      }
     }
 
-    return (
-        <>
-            <Menu />
-            <div
-                style={{
-                    paddingTop: 20,
-                    paddingBottom: 40,
-                    paddingLeft: '6%',
-                    paddingRight: '6%',
-                }}
-            >
+  }
 
-                {
-                    dataProduto ?
+  return (
+    <>
+      <Menu />
+      <div
+        style={{
+          paddingTop: 20,
+          paddingBottom: 40,
+          paddingLeft: '6%',
+          paddingRight: '6%',
+        }}
+      >
 
-                        <>
-                            <h2>Produto: </h2>
-                            <Row>
-                                <Col4>
-                                    <img
-                                        style={{
-                                            width: '100%'
-                                        }}
-                                        src={caminho +
-                                            dataProduto?.imagemg
-                                        }
-                                    />
+        {
+          dataProduto ?
 
-                                </Col4>
-                                <Col6>
-                                    <h3>{dataProduto?.nome}</h3>
-                                    <p
-                                        style={{
-                                            textDecoration: 'line-through'
-                                        }}
-                                    >
-                                        {`R$` + dataProduto?.valor}
-                                    </p>
-                                    <p
-                                        style={{
-                                            fontWeight: 'bold',
-                                            color: 'red'
-                                        }}
-                                    >
-                                        {`R$` + dataProduto?.promo}
-                                    </p>
-                                    <form
-                                        onSubmit={onSubmit}
-                                    >
-                                        <Input
-                                            type='number'
-                                            name="quantidade"
-                                            defaultValue={1}
-                                            min="1"
-                                            required
-                                        />
-                                        <Button
-                                            type="submit"
-                                        >
-                                            <TextButton>
-                                                Adicionar ao Carrinho
-                                            </TextButton>
-                                        </Button>
-                                    </form>
-                                </Col6>
+            <>
+              <h2>Produto: </h2>
+              <Row>
+                <Col4>
+                  <img
+                    style={{
+                      width: '100%'
+                    }}
+                    src={caminho +
+                      dataProduto?.imagemg
+                    }
+                  />
 
-                            </Row>
-                        </>
-                        :
-                        <h2>Nenhum produto encontrado.</h2>
-                }
-            </div>
-        </>
-    )
+                </Col4>
+                <Col6>
+                  <h3>{dataProduto?.nome}</h3>
+                  <p
+                    style={{
+                      textDecoration: 'line-through'
+                    }}
+                  >
+                    {`R$` + dataProduto?.valor}
+                  </p>
+                  <p
+                    style={{
+                      fontWeight: 'bold',
+                      color: 'red'
+                    }}
+                  >
+                    {`R$` + dataProduto?.promo}
+                  </p>
+                  <form
+                    onSubmit={onSubmit}
+                  >
+                    <Input
+                      type='number'
+                      name="quantidade"
+                      defaultValue={1}
+                      min="1"
+                      required
+                    />
+                    <Button
+                      type="submit"
+                    >
+                      <TextButton>
+                        Adicionar ao Carrinho
+                      </TextButton>
+                    </Button>
+                  </form>
+                </Col6>
+
+              </Row>
+            </>
+            :
+            <h2>Nenhum produto encontrado.</h2>
+        }
+      </div>
+    </>
+  )
 }
